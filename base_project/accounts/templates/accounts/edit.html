@@ -1,0 +1,163 @@
+{% extends "base/base.html" %}
+{% load static %}
+{% block head_extra %}
+	<!--Custom imports-->
+	<link rel="stylesheet" href="{% static 'base/css/home.css' %}">
+	<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+{% endblock head_extra %}
+
+{% block main %}
+	<main class="container white">
+		<section class="row section white">
+
+            <div>
+		<p id="studentYN" hidden>{{ user.account.is_student }} </p>
+                <h3 class="float center">Alterar grade</h3>
+                <form id="change-form" method="POST">
+		    {% csrf_token %}			
+                    <div class="col s12 row" id="modals_choicem">
+                        <p class="grey-text center-align">Você pode escolher tanto palestras quanto mini-cursos</p>
+                        <ul class="tabs center" id="ul1">
+                            <li class="tab col s6" id="blabla"><a href="#lecturestab" id="tablectures" class="green-text">Palestras</a></li>
+                            <li class="tab col s6"><a href="#coursestab" id="tabshortcourses" class="green-text">mini-Cursos</a></li>
+                        </ul>
+                    </div>
+
+                    {# Lectures #}
+ 
+                    <div class="col s12" id="lecturestab">
+                        <h4 class="center-align">Escolha as palestras desejadas: <i class="material-icons grey-text tooltipped" data-position="right" data-delay="50" data-tooltip="Texto de ajuda">help_outline</i></h4>
+
+                        <div class="row">
+                            <div class="col s12">
+                                <ul class="tabs center">
+                                    <li class="tab col s2 offset-s1"><a href="#seg" class="green-text">Segunda - 24/09</a></li>
+                                    <li class="tab col s2"><a href="#ter" class="green-text">Terça - 25/09</a></li>
+                                    <li class="tab col s2"><a href="#qua" class="green-text">Quarta - 26/09</a></li>
+                                    <li class="tab col s2"><a href="#qui" class="green-text">Quinta - 27/09</a></li>
+                                    <li class="tab col s2"><a href="#sex" class="green-text">Sexta - 28/09</a></li>
+
+                                </ul>
+                            </div>
+
+                            {% for day in lectures_per_day %}
+                                <div class="col s12" id="{% cycle 'seg' 'ter' 'qua' 'qui' 'sex'%}" data-day="{% cycle 'seg' 'ter' 'qua' 'qui' 'sex'%}">
+                                    <table class="highlight">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="material-icons">check_box</i></th>
+                                                <th>Palestra</th>
+                                                <th>Horário</th>
+                                                <th>Palestrante</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for lecture in day %}
+                                                    <tr class="tooltipped" data-tooltip="{{ lecture.description }}">
+                                                        <td>
+                                                            <label>
+                                                                <input type="checkbox" name="lectures" id="id_lectures+{{ lecture.pk }}" value="{{ lecture.pk }}" autocomplete="off" {% if lecture in checked_lectures %}
+                                                                    checked
+                                                                {% endif %}>
+                                                                <span></span>
+                                                            </label>
+                                                        </td>
+                                                        <td>{{ lecture.title }}</td>
+                                                        <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                        <td>{{ lecture.speaker }}</td>
+                                                    </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {# Mini Courses #}
+
+                    <div class="col s12" id="coursestab">
+                        <h4 class="center-align">Escolha os mini-cursos desejados: <i class="material-icons grey-text tooltipped" data-position="right" data-delay="50" data-tooltip="Texto de ajuda">help_outline</i></h4>
+
+                        <div class="row">
+                            <div class="col s12">
+                                <ul class="tabs center">
+                                    <li class="tab col s2"><a href="#sabmin" class="green-text active">22/09 - Sáb</a></li>
+                                    <li class="tab col s2"><a href="#segmin" class="green-text">24/09 - Seg</a></li>
+                                    <li class="tab col s2"><a href="#termin" class="green-text">25/09 - Ter</a></li>
+                                    <li class="tab col s2"><a href="#quamin" class="green-text">26/09 - Qua</a></li>
+                                    <li class="tab col s2"><a href="#quimin" class="green-text">27/09 - Qui</a></li>
+                                    <li class="tab col s2"><a href="#sexmin" class="green-text">28/09 - Sex</a></li>
+                                </ul>
+                            </div>
+                            
+                            {% for minicourses in minicourses_per_day %}
+                                <div class="col s12" id="{% cycle 'sabmin' 'segmin' 'termin' 'quamin' 'quimin' 'sexmin'%}" data-day="{% cycle 'sab' 'seg' 'ter' 'qua' 'qui' 'sex'%}">
+                                    <table class="highlight">
+                                        <thead>
+                                            <tr>
+                                            <th><i class="material-icons">check_box</i></th>
+                                            <th>Mini-Curso</th>
+                                            <th>Horário</th>
+                                            <th>Tutor(a)</th>
+                                            <th>Preço</th>
+                                            <th class="center">Vagas disponíveis</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for shortcourse in minicourses %}
+                                                <tr class="tooltipped" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ shortcourse.pk }}" value="{{ shortcourse.pk }}" data-name="shortcourses" {% if shortcourse.lecture_ptr in checked_lectures %}
+                                                                checked
+                                                            {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+
+                                                </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                            <a class="btn waves-effect offset-l3 waves-light btn-large modal-trigger red col s12 l6" href="#modal1" id="btnregister">Registrar</a>
+                            <div id="modal1" class="modal">
+                                <div class="modal-content">
+                                  <h4>Confirme a inscrição:</h4>
+                                  <p><b>OBS:</b> Caso seja da comunidade interna o pagamento é facultativo, entretanto não será possível requerir certificado.</p>
+                                  <div id="blocovalor">    
+                                        <p><b id="valorfinal">Valor da inscrção:<br>R$</b></p>
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Não aceito</a>
+                                    <button type="submit" class="modal-close waves-effect waves-green btn-flat">Eu aceito</button>
+                                </div>
+                              </div>
+                    </div>
+                </form>
+            </div>
+
+        </section>
+    </main>
+{% endblock main %}
+{% block end_scripts %}
+	<script type="text/javascript" src="{% static 'base/js/materialize_init.js' %}"></script>
+	<script src="{% static 'base/js/header_animation.js' %}"></script>
+    <script src="{% static 'accounts/js/form.js' %}"></script>
+    <script src="{% static 'accounts/js/edit.js' %}"></script>
+    <script src="{% static 'accounts/js/init.js' %}"></script>
+{% endblock end_scripts %}
+	
+

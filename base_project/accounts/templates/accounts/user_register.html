@@ -1,0 +1,399 @@
+{% extends "base/base.html" %}
+
+{% load static %}
+{% block head_extra %}
+	<!--Custom imports-->
+	<link rel="stylesheet" href="{% static 'base/css/home.css' %}">
+	<link rel="stylesheet" href="{% static 'accounts/css/register.css' %}">
+{% endblock head_extra %}
+
+{% block main %}
+	<main class="container white">
+		<section class="row section white">
+			<div class="col s12">
+                {% if errors %}
+                    {% for error in errors %}
+                        <p class="error-message">{{ error }}</p>
+                    {% endfor %}
+                {% endif %}
+
+				<form id="login-form" method="POST">
+                    <div class="col s12 m8 offset-m2">
+                        <h2>Cadastre-se</h2>
+
+                        {% csrf_token %}
+    					 <div class="input-field col s12">
+                             <input type="text" name="email" id="id_email" autocomplete="off" required
+                                     {% if form_data %} value="{{ form_data.email }}"{% endif %}>
+                             <label for="id_email">Email</label>
+    					 </div>
+
+                        <div class="input-field col s6">
+                            <label for="id_first_name">Nome</label>
+                            <input type="text" name="first_name" required id="id_first_name"
+                                    {% if form_data %} value="{{ form_data.first_name }}"{% endif %}>
+                        </div>
+                        <div class="input-field col s6">
+                            <label for="id_last_name">Sobrenome</label>
+                            <input type="text" name="last_name" required id="id_last_name"
+                                    {% if form_data %} value="{{ form_data.last_name }}"{% endif %}>
+                        </div>
+
+                        <div class="input-field col s12 m6">
+                            <input type="password" name="password" id="id_password" required
+                                    {% if form_data %} value="{{ form_data.password }}"{% endif %}>
+                            <label for="id_password">Senha</label>
+                        </div>
+                        <div class="input-field col s12 m6">
+                            <input type="password" name="repeat_password" id="id_repeat_password" required
+                                    {% if form_data %} value="{{ form_data.repeat_password }}"{% endif %}>
+                            <label for="id_repeat_password">Repita sua senha</label>
+                        </div>
+
+                        <div class="col s12">
+                            <div class="switch">
+                                <label>
+                                    Comunidade Externa
+                                    <input type="checkbox" name="is_student" id="id_is_student" autocomplete="off"
+                                            {% if form_data %} checked{% endif %}>
+                                    <span class="lever"></span>
+                                    Comunidade Interna
+                                </label>
+                            </div>
+                            <div id="register_field">
+                                <div class="input-field">
+                                    <input type="text" name="register" id="id_register" autocomplete="off" minlength="8"
+                                           maxlength="11" {% if form_data %} value="{{ form_data.register }}"{% endif %}>
+                                    <label for="id_register">Matrícula</label>
+                                    <b>OBS: Enquanto discente você deve ocupar todos os horários de cada dia.</b>
+                                </div>
+
+                                <div class="input-field">
+                                    <select name="course" id="id_course">
+                                        <option disabled selected value="">Selecione seu curso</option>
+                                        {% for course in courses %}
+                                            <option value="{{ course.pk }}" {% if course == form_data.course %}
+                                                    selected {% endif %}>{{ course.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+        
+                    <div class="col s12 row" id="modals_choice">
+                        <p class="grey-text center-align">Você pode escolher tanto palestras quanto mini-cursos</p>
+                        <ul class="tabs center" id="ul1">
+                            <li class="tab col s6" id="blabla"><a href="#lecturestab" id="tablectures" class="green-text">Palestras</a></li>
+                            <li class="tab col s6"><a href="#coursestab" id="tabshortcourses" class="green-text">mini-Cursos</a></li>
+                        </ul>
+                    </div>
+
+                    {# Lectures #}
+ 
+                    <div class="col s12" id="lecturestab">
+                        <h4 class="center-align">Escolha as palestras desejadas: <i class="material-icons grey-text tooltipped" data-position="right" data-delay="50" data-tooltip="Texto de ajuda">help_outline</i></h4>
+
+                        <div class="row">
+                            <div class="col s12">
+                                <ul class="tabs center" id="ulLec">
+                                    <li class="tab col s2 offset-s1"><a href="#seg" class="green-text">Segunda - 24/09</a></li>
+                                    <li class="tab col s2"><a href="#ter" class="green-text">Terça - 25/09</a></li>
+                                    <li class="tab col s2"><a href="#qua" class="green-text">Quarta - 26/09</a></li>
+                                    <li class="tab col s2"><a href="#qui" class="green-text">Quinta - 27/09</a></li>
+                                    <li class="tab col s2"><a href="#sex" class="green-text">Sexta - 28/09</a></li>
+
+                                </ul>
+                            </div>
+
+                            {% for day in lectures_per_day %}
+                                <div class="col s12" id="{% cycle 'seg' 'ter' 'qua' 'qui' 'sex'%}" data-day="{% cycle 'seg' 'ter' 'qua' 'qui' 'sex'%}">
+                                    <table class="highlight">
+                                        <thead>
+                                            <tr>
+                                                <th><i class="material-icons">check_box</i></th>
+                                                <th>Palestra</th>
+                                                <th>Horário</th>
+                                                <th>Palestrante</th>
+                                                <th>Curso</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for lecture in day %}
+
+                                            {% if lecture.course.name == "Licenciatura em Ciências Biológicas" %}
+                                                <tr class="tooltipped biologicas" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}"
+                                                                   value="{{ lecture.pk }}" autocomplete="off"
+                                                                    {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">bug_report</i></td>
+                                                </tr>
+
+                                            {% elif lecture.course.name == "Técnico em Multimídia Integrado" %}
+                                                <tr class="tooltipped multimidia" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}" value="{{ lecture.pk }}"
+                                                                   autocomplete="off" {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">movie_creation</i></td>
+                                                </tr>
+
+                                            {% elif lecture.course.name == "Técnico em Agropecuária Integrado" or lecture.course.name == "Técnico em Agropecuária Subsequente"  %}
+                                                <tr class="tooltipped agropecuaria" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}"
+                                                                   value="{{ lecture.pk }}" autocomplete="off"
+                                                                    {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">nature_people</i></td>
+                                                </tr>
+
+                                            {% elif lecture.course.name == "Técnico em Logística Subsequente" %}
+                                                <tr class="tooltipped logistica" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}"
+                                                                   value="{{ lecture.pk }}" autocomplete="off"
+                                                                    {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">flight_land</i></td>
+                                                </tr>
+
+                                            {% elif lecture.course.name == "Técnico em Manutenção e Suporte em Informática Subsequente" %}
+                                                <tr class="tooltipped manutencao" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}"
+                                                                   value="{{ lecture.pk }}" autocomplete="off"
+                                                                    {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">computer</i></td>
+                                                </tr>
+
+                                            {% else %}
+                                                 <tr class="tooltipped todos" data-tooltip="{{ lecture.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lectures_{{ lecture.pk }}"
+                                                                   value="{{ lecture.pk }}" autocomplete="off" {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ lecture.title }}</td>
+                                                    <td class="hour">{{ lecture.date | time }} - {{ lecture.finaldate | time}}</td>
+                                                    <td>{{ lecture.speaker }}</td>
+                                                    <td><i class="material-icons">language</i></td>
+                                                </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    {# Mini Courses #}
+
+					<div class="col s12" id="coursestab">
+                        <h4 class="center-align">Escolha os mini-cursos desejados: <i class="material-icons grey-text tooltipped" data-position="right" data-delay="50" data-tooltip="Texto de ajuda">help_outline</i></h4>
+
+                        <div class="row">
+                            <div class="col s12">
+                                <ul class="tabs center" id="ulMini">
+                                    <li class="tab col s2"><a href="#sabmin" class="green-text active">22/09 - Sáb</a></li>
+                                    <li class="tab col s2"><a href="#segmin" class="green-text">24/09 - Seg</a></li>
+                                    <li class="tab col s2"><a href="#termin" class="green-text">25/09 - Ter</a></li>
+                                    <li class="tab col s2"><a href="#quamin" class="green-text">26/09 - Qua</a></li>
+                                    <li class="tab col s2"><a href="#quimin" class="green-text">27/09 - Qui</a></li>
+                                    <li class="tab col s2"><a href="#sexmin" class="green-text">28/09 - Sex</a></li>
+                                </ul>
+                            </div>
+                            
+                            {% for minicourses in minicourses_per_day %}
+                                <div class="col s12" id="{% cycle 'sabmin' 'segmin' 'termin' 'quamin' 'quimin' 'sexmin'%}" data-day="{% cycle 'sab' 'seg' 'ter' 'qua' 'qui' 'sex'%}">
+                                    <table class="highlight">
+                                        <thead>
+                                            <tr>
+	                                            <th><i class="material-icons">check_box</i></th>
+	                                            <th>Mini-Curso</th>
+	                                            <th>Horário</th>
+	                                            <th>Tutor(a)</th>
+	                                            <th>Preço</th>
+	                                            <th class="center">Vagas disponíveis</th>
+	                                            <th>Curso</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for shortcourse in minicourses %}
+                                            {% if shortcourse.course.name == "Licenciatura em Ciências Biológicas" %}
+                                                <tr class="tooltipped biologicas" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}"
+                                                                   value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                                    {% if shortcourse in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td class="lectitle">{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">bug_report</i></td>
+                                                </tr>
+                                            {% elif shortcourse.course.name == "Técnico em Multimídia Integrado" %}
+                                                <tr class="tooltipped multimidia" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}"
+                                                                   value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                                    {% if shortcourse in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">movie_creation</i></td>
+                                                </tr>
+
+                                            {% elif shortcourse.course.name == "Técnico em Agropecuária Integrado" %}
+                                                <tr class="tooltipped agropecuaria" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}"
+                                                                   value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                                    {% if shortcourse in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">nature_people</i></td>
+                                                </tr>
+                                               
+                                            {% elif shortcourse.course.name == "Técnico em Logística Subsequente" %}
+                                                <tr class="tooltipped logistica" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}" value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                            {% if shortcourse in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">flight_land</i></td>
+                                                </tr>
+
+                                            {% elif shortcourse.course.name == "Técnico em Manutenção e Suporte em Informática Subsequente" %}
+                                                <tr class="tooltipped manutencao" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}" value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                            {% if shortcourse in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">computer</i></td>
+                                                </tr>
+
+                                            {% else %}
+                                            	<tr class="tooltipped todos" data-tooltip="{{ shortcourse.description }}">
+                                                    <td>
+                                                        <label>
+                                                            <input type="checkbox" name="lectures" id="id_lecture_{{ shortcourse.pk }}" value="{{ shortcourse.pk }}" data-name="shortcourses"
+                                                            {% if lecture in form_data.lectures %} checked {% endif %}>
+                                                            <span></span>
+                                                        </label>
+                                                    </td>
+                                                    <td>{{ shortcourse.title }}</td>
+                                                    <td class="hour">{{ shortcourse.date | time }} - {{ shortcourse.finaldate | time}}</td>
+                                                    <td>{{ shortcourse.speaker }}</td>
+                                                    <td id="costvalue">R${{ shortcourse.cost }}</td>
+                                                    <td class="center">{{ shortcourse.get_number_of_vacancies }}</td>
+                                                    <td><i class="material-icons">language</i></td>
+                                                </tr>
+                                            {% endif %}
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="buttons">
+                        <a class="btn waves-effect offset-l3 waves-light btn-large modal-trigger red col s12 l6" href="#modal1" id="btnregister">Registrar</a>
+                        <div id="modal1" class="modal">
+                            <div class="modal-content">
+                              <h4>Confirme a inscrição:</h4>
+                              <p><b>OBS:</b> Caso seja da comunidade interna o pagamento é facultativo, entretanto não será possível requerir certificado.</p>
+                              <div id="blocovalor">
+                                    <p><b id="valorfinal">Valor da inscrição:<br>R$</b></p>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a class="modal-close waves-effect waves-green btn-flat">Não aceito</a>
+                                <button type="submit" class="modal-close waves-effect waves-green btn-flat">Eu aceito</button>
+                            </div>
+                        </div>
+                    </div>
+				</form>
+			</div>
+        </section>
+    </main>
+{% endblock main %}
+{% block end_scripts %}
+	<script type="text/javascript" src="{% static 'base/js/materialize_init.js' %}"></script>
+	<script src="{% static 'base/js/header_animation.js' %}"></script>
+    <script src="{% static 'accounts/js/form.js' %}"></script>
+    <script src="{% static 'accounts/js/init.js' %}"></script>
+{% endblock end_scripts %}
+	

@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block main %}
+    <main class="row">
+        {% for lecture in lectures %}
+            <div class="input-field col s12">
+                <label for="id_lectures+{{ lecture.pk }}">
+                    <input type="checkbox" name="lectures" id="id_lectures+{{ lecture.pk }}" {% if lecture in form.initial.lectures %}
+                        checked
+                    {% endif %}>
+                    <span>{{ lecture.title }}</span>
+                </label>
+            </div>
+        {% endfor %}
+    </main>
+{% endblock %}

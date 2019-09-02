@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+
+{% block main %}
+    <main class="container">
+        <h4>Cadastro realizado com sucesso!</h4>
+        <div>
+            Para continuar, faça sua inscrição em nossos eventos!
+            <ul>
+                <li><a href="{% url 'hall:register' %}">III Salão de Ensino, Pesquisa e Extensão</a></li>
+                <li><a href="{% url 'semac:subscription' %}">II Semana Acadêmica</a></li>
+            </ul>
+        </div>
+    </main>
+{% endblock %}
