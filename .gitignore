@@ -1,6 +1,7 @@
 # Development ignores
 .vscode/
 base_project/static/
+db.sqlite3
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
