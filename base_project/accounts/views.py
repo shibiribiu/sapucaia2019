@@ -68,7 +68,10 @@ def review_account(request):
     if request.method == 'POST':
         form = AvatarChangeForm(request.POST, request.FILES)
         if form.is_valid():
+            print(form)
+            print("entrou")
             request.user.profile.avatar = form.cleaned_data['avatar']
             request.user.profile.save()
+        print("erros", form.errors)
     form = AvatarChangeForm()
     return render(request, 'accounts/review.html', {'form': form})

@@ -43,7 +43,25 @@ a.modal-trigger {
 #sidebar {
     border-right: 1px solid #999;
     display: flex;
-    flex: 1 1;
+    flex: 1;
     flex-direction: column;
     min-height: 100%;
+}
+
+.avatar-preview {
+    height: 350px;
+    width: 350px;
+    background-color: #ddd;
+    display: inline-block;
+}
+
+#avatar-preview-img {
+    height: 100%;
+    width: 100%;
+    object-position: center;
+    object-fit: scale-down;
+}
+
+.controls {
+    display: inline-block;
 }
