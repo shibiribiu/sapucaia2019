@@ -1,85 +1,42 @@
-{% extends 'base/base.html' %}
+{% extends 'core/base.html' %}
 
-{% block main %}
-    <main class="container">
-    	<br>
-        <div class="row">
-        	<p hidden>{{ deb }}</p>
-        	<h2>Minha Inscrição</h2>
-            <table class="col s12 m8">
-            	<div>
-		            <tr>
-		            	<th>Nome Completo:</th>
-		            	<td>{{ user.get_full_name }}</td>
-		       		</tr>	
-		       		<tr>
-			            <th>Email:</th>
-			            <td>{{ user.email }}</td>
-			        </tr>
-			        <tr>
-			            <th>Matrícula:</th>
-			            <td>{{ user.account.register }}</td>
-			        </tr>
-			        <tr>
-			            <th>Curso:</th>
-			            <td>{{ user.account.course }}</td>
-			        </tr>
-			        <tr>
-		              	<th>Inscrição:</th>
-		            	<td>R${{ user.account.calc_sub_cost }}</td>
-		           	</tr>
-	           </div>
-            </table>
+{% load static %}
+{% load messages %}
+
+{% block head_extra %}
+    <link rel="stylesheet" href="{% static 'accounts/css/review.css' %}">
+    {% toast_messages %}
+{% endblock head_extra %}
+{% block main_content %}
+    <h3>Perfil</h3>
+    <div class="col s12 m4 center-align" id="sidebar">
+        <div class="avatar-container">
+            <a class="modal-trigger" href="#modal-change-avatar">
+                {% if user.profile.avatar %}
+                    <img src="{{ user.profile.avatar.url }}" class="avatar">
+                {% else %}
+                    <i class="material-icons avatar">person</i>
+                {% endif %}
+            </a>
         </div>
-        <div>
-	    <a class="btn waves-effect float right" href="{% url 'edit_register' %}">Editar palestras / minicursos</a>
-            <section>
-            	<div class="divider"></div>
-	        	<h3>Palestras:</h3>
-	        	<table>
-	        		<tr>
-	        			<th>Nome da Palestra</th>
-	        			<th>Local</th>
-	        			<th>Data</th>
-	        			<th>Horário</th>
-	        		</tr>
-	        	{% for palestra in lectures %}
-	        		{% if not palestra.is_minicourse %}
-	        			<tr>
-	        				<td><a href="{% url 'palestra' palestra.pk %}" class="black-text">{{ palestra.title }}</a></td>
-	        				<td>{{ palestra.local }}</td>
-	        				<td>{{ palestra.date | date:"d/m/y" }}</td>
-	        				<td>{{ palestra.date | time }} - {{ palestra.finaldate | time }}</td>
-	        			</tr>
-	        		{% endif %}
-	        	{% endfor %}
-	        	</table>
-	        	
-	        	<div class="divider"></div>
-	        	
-	        	<h3>Minicursos:</h3>
-	        	<table>
-	        		<tr>
-	        			<th>Nome da Palestra</th>
-	        			<th>Local</th>
-	        			<th>Data</th>
-	        			<th>Horário</th>
-	        		</tr>
-
-		        	{% for lecture in user.account.lectures.all %}
-		        		{% if lecture.is_minicourse %}
-	        			<tr>
-	        				<td><a href="{% url 'palestra' lecture.pk %}" class="black-text">{{ lecture.title }}</a></td>
-	        				<td>{{ lecture.local }}</td>
-	        				<td>{{ lecture.date | date:"d/m/y" }}</td>
-	        				<td>{{ lecture.date | time }} - {{ lecture.finaldate | time }}</td>
-	        			</tr>
-	        			{% endif %}
-		        	{% endfor %}
-	        	</table>
-        	</section>
+        <div class="section left-align">
+            <b>Nome: </b> {{ user.get_full_name }}
+            <br>
+            <b>E-mail: </b> {{ user.email }}
         </div>
-    </main>
+    </div>
+    <div class="col m8">
+        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Corrupti, mollitia ex? Sunt vitae dolore velit. Reiciendis mollitia, corrupti hic magnam eveniet soluta numquam dolorem autem molestias nisi blanditiis praesentium illum!</p>
+    </div>
 
-
+    <div class="modal" id="modal-change-avatar">
+        <div class="modal-content">
+            <h4>Selecione o arquivo de seu avatar!</h4>
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.avatar }}
+                <button type="submit">Enviar</button>
+            </form>
+        </div>
+    </div>
 {% endblock %}

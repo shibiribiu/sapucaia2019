@@ -13,6 +13,7 @@ $(() => {
         alignment: 'right',
         hover: true,
     });
+    $('.modal').modal();
 	setInterval(function(){
         $(".carousel").carousel("next");
     }, 7000);

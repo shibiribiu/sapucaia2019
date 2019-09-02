@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
-from .forms import ProfileCreationForm, LoginForm
-from .models import Profile
+from .forms import ProfileCreationForm, LoginForm, AvatarChangeForm
 
 
 def register_account(request):
@@ -16,8 +16,9 @@ def register_account(request):
             profile = form.save()
             user = profile.owner
             login(request, user)
+            messages.success(request, "Cadastro realizado com sucesso!")
 
-            return render(request, 'accounts/sucess_register.html')
+            return redirect('review')
 
     else:
         form = ProfileCreationForm()
@@ -61,6 +62,13 @@ def logout_account(request):
     logout(request)
     return redirect('home')
 
+
 @login_required
 def review_account(request):
-    return render(request, 'accounts/general_subscription.html')
+    if request.method == 'POST':
+        form = AvatarChangeForm(request.POST, request.FILES)
+        if form.is_valid():
+            request.user.profile.avatar = form.cleaned_data['avatar']
+            request.user.profile.save()
+    form = AvatarChangeForm()
+    return render(request, 'accounts/review.html', {'form': form})

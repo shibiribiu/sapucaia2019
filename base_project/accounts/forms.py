@@ -13,7 +13,7 @@ class ProfileCreationForm(forms.ModelForm):
 
     class Meta:
         model = Profile
-        exclude = ('owner', )
+        exclude = ('owner', 'avatar')
 
     def clean(self):
         cleaned_data = super().clean()
@@ -49,3 +49,12 @@ class ProfileCreationForm(forms.ModelForm):
 class LoginForm(forms.Form):
     email = forms.EmailField(label='E-mail')
     password = forms.CharField(label='Senha', widget=forms.PasswordInput)
+
+
+class AvatarChangeForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['avatar']
+        widgets = {
+            'avatar': forms.FileInput
+        }
